@@ -1,0 +1,15 @@
+# Python virtual environment
+venv/
+
+# Cache files
+__pycache__/
+*.pyc
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Raw dataset (optional - keep private if large)
+data/raw/
+
+# OS files
+.DS_Store
