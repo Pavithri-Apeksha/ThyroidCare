@@ -1,0 +1,4 @@
+timestamp,module,prediction,probability,input_summary
+2026-07-12 18:48:14,risk,Benign,0.1478,Family_History=No; Radiation_Exposure=No; Iodine_Deficiency=No; Smoking=No; Obesity=No
+2026-07-12 18:48:38,recurrence,No,0.2,Gender=F; Smoking=No; Hx Smoking=No; Hx Radiothreapy=No; Age=40
+2026-07-12 18:50:04,risk,Benign,0.1478,Family_History=No; Radiation_Exposure=No; Iodine_Deficiency=No; Smoking=No; Obesity=No

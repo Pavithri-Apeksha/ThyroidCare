@@ -1,0 +1,6 @@
+Group,N,Malignant_Recall,Malignant_Precision,AUROC
+Caucasian,6362,0.199,0.661,0.579
+Asian,5251,0.711,0.707,0.791
+African,4281,0.545,0.684,0.729
+Hispanic,3289,0.203,0.636,0.586
+Middle Eastern,2087,0.224,0.664,0.614

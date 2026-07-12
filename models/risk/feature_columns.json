@@ -1,0 +1,91 @@
+{
+  "feature_cols": [
+    "Family_History",
+    "Radiation_Exposure",
+    "Iodine_Deficiency",
+    "Smoking",
+    "Obesity",
+    "Diabetes",
+    "Gender",
+    "Age",
+    "TSH_Level",
+    "T3_Level",
+    "T4_Level",
+    "Nodule_Size",
+    "Country_Brazil",
+    "Country_China",
+    "Country_Germany",
+    "Country_India",
+    "Country_Japan",
+    "Country_Nigeria",
+    "Country_Russia",
+    "Country_South Korea",
+    "Country_UK",
+    "Country_USA",
+    "Ethnicity_African",
+    "Ethnicity_Asian",
+    "Ethnicity_Caucasian",
+    "Ethnicity_Hispanic",
+    "Ethnicity_Middle Eastern"
+  ],
+  "binary_cols": [
+    "Family_History",
+    "Radiation_Exposure",
+    "Iodine_Deficiency",
+    "Smoking",
+    "Obesity",
+    "Diabetes"
+  ],
+  "continuous_cols": [
+    "Age",
+    "TSH_Level",
+    "T3_Level",
+    "T4_Level",
+    "Nodule_Size"
+  ],
+  "onehot_cols": [
+    "Country_Brazil",
+    "Country_China",
+    "Country_Germany",
+    "Country_India",
+    "Country_Japan",
+    "Country_Nigeria",
+    "Country_Russia",
+    "Country_South Korea",
+    "Country_UK",
+    "Country_USA",
+    "Ethnicity_African",
+    "Ethnicity_Asian",
+    "Ethnicity_Caucasian",
+    "Ethnicity_Hispanic",
+    "Ethnicity_Middle Eastern"
+  ],
+  "diagnosis_classes": [
+    "Benign",
+    "Malignant"
+  ],
+  "risk_classes": [
+    "Low",
+    "Medium",
+    "High"
+  ],
+  "countries": [
+    "Brazil",
+    "China",
+    "Germany",
+    "India",
+    "Japan",
+    "Nigeria",
+    "Russia",
+    "South Korea",
+    "UK",
+    "USA"
+  ],
+  "ethnicities": [
+    "African",
+    "Asian",
+    "Caucasian",
+    "Hispanic",
+    "Middle Eastern"
+  ]
+}

@@ -1,0 +1,3 @@
+Group,N,Malignant_Recall,Malignant_Precision,AUROC
+Female,12697,0.468,0.686,0.701
+Male,8573,0.442,0.698,0.698
