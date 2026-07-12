@@ -1,9 +1,12 @@
 streamlit
-   pandas
-   numpy
-   scikit-learn
-   xgboost
-   shap
-   matplotlib
-   fpdf2
-   joblib
+pandas
+numpy
+scikit-learn
+xgboost
+shap
+matplotlib
+fpdf2
+joblib
+imbalanced-learn
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
