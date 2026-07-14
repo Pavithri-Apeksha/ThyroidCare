@@ -71,8 +71,8 @@ streamlit run frontend/app.py
 
 ## Datasets
 
-- [Thyroid Cancer Risk Prediction Dataset](https://www.kaggle.com/) ](https://www.kaggle.com/datasets/ankushpanday1/thyroid-cancer-risk-prediction-dataset)(Kaggle)
-- [Differentiated Thyroid Cancer Recurrence](https://www.kaggle.com/)](https://www.kaggle.com/datasets/aneevinay/thyroid-cancer-recurrence-dataset) (Kaggle)
+- [Thyroid Cancer Risk Prediction Dataset ](https://www.kaggle.com/datasets/ankushpanday1/thyroid-cancer-risk-prediction-dataset)(Kaggle)
+- [Differentiated Thyroid Cancer Recurrence](https://www.kaggle.com/datasets/aneevinay/thyroid-cancer-recurrence-dataset) (Kaggle)
 
 ## Author
 
