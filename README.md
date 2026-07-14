@@ -1,6 +1,8 @@
 # ThyroidCare
 
-Deep Learning-Based Prognostic Model for Thyroid Cancer Risk and Recurrence  [ThyroidCare]([https://www.kaggle.com/datasets/ankushpanday1/thyroid-cancer-risk-prediction-dataset](https://thyroidcare-cdss-web.streamlit.app/))
+Deep Learning-Based Prognostic Model for Thyroid Cancer Risk and Recurrence 
+
+[ThyroidCare - Web](https://thyroidcare-cdss-web.streamlit.app/)
 
 A research prototype clinical decision support web app that predicts:
 - **Thyroid cancer risk** before diagnosis (Diagnosis + Risk Level)
