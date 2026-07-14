@@ -1,7 +1,6 @@
 """
-Step 2: Data Exploration
-Purpose: Understand both datasets before preprocessing - check missing values,
-data types, class balance, and basic statistics.
+Data Exploration
+Purpose: Understand both datasets before preprocessing - check missing values, data types, class balance, and basic statistics.
 """
 import pandas as pd
 

@@ -1,7 +1,6 @@
 """
 frontend/pages/5_About.py
-Purpose: Model card / methodology summary page - dataset info, approach,
-and known limitations, for transparency (proposal requirement).
+Purpose: Model card / methodology summary page - dataset info, approach, and known limitations, for transparency (proposal requirement).
 """
 import streamlit as st
 

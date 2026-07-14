@@ -1,9 +1,6 @@
 """
 backend/faq_data.py
-Purpose: Simple rule-based FAQ "chatbot" data for the app. No LLM API is
-used (avoids cost/complexity/API-key risk) - satisfies the proposal's
-"Chatbot for Q&A, guidance, and explanation of predictions" requirement
-with predefined questions and answers.
+Purpose: Simple rule-based FAQ "chatbot" data for the app.
 """
 
 FAQS = [

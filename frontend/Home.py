@@ -1,10 +1,7 @@
 """
 frontend/app.py
-Purpose: Home page of the ThyroidCare app. Streamlit auto-detects this as
-the entry point, and everything in frontend/pages/ becomes sidebar
-navigation automatically.
+Purpose: Home page of the ThyroidCare app. Streamlit auto-detects this as the entry point, and everything in frontend/pages/ becomes sidebar navigation automatically.
 
-Run with: streamlit run frontend/app.py   (from the project root folder)
 """
 import streamlit as st
 
@@ -19,9 +16,7 @@ st.subheader("Deep Learning-Based Prognostic Tool for Thyroid Cancer Risk and Re
 
 st.markdown(
     """
-    Welcome to **ThyroidCare** — a research prototype clinical decision support tool
-    that predicts thyroid cancer risk before diagnosis and recurrence risk after
-    treatment, using deep learning models with explainable AI (SHAP).
+    Welcome to **ThyroidCare** — a research prototype clinical decision support tool that predicts thyroid cancer risk before diagnosis and recurrence risk after treatment, using deep learning models with explainable AI (SHAP).
     """
 )
 
@@ -33,7 +28,7 @@ st.warning(
 
 st.divider()
 
-# ---- Model overview cards ----
+#  Model overview cards 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Risk Model AUROC", "0.70", help="Diagnosis prediction (Benign/Malignant)")
@@ -46,7 +41,7 @@ with col4:
 
 st.divider()
 
-# ---- Navigation guide ----
+# Navigation guide 
 st.markdown("### What you can do here")
 
 c1, c2 = st.columns(2)
@@ -54,29 +49,21 @@ with c1:
     st.markdown(
         """
         **Risk Prediction**
-        Enter patient demographic and clinical data to get an early
-        thyroid cancer risk assessment (Diagnosis + Risk Level), with
-        a SHAP explanation and a downloadable PDF report.
+        Enter patient demographic and clinical data to get an early thyroid cancer risk assessment (Diagnosis + Risk Level), with a SHAP explanation and a downloadable PDF report.
 
         **Recurrence Prediction**
-        For post-treatment patients: enter clinical/pathology details
-        to estimate the probability of cancer recurrence.
+        For post-treatment patients: enter clinical/pathology details to estimate the probability of cancer recurrence.
         """
     )
 with c2:
     st.markdown(
         """
         **Model Insights Dashboard**
-        Explore model performance (ROC curves, confusion matrices),
-        global SHAP feature importance, calibration, and fairness
-        across demographic groups — all at the aggregate level (no
-        individual patient data is shown).
+        Explore model performance (ROC curves, confusion matrices), global SHAP feature importance, calibration, and fairness across demographic groups — all at the aggregate level (no individual patient data is shown).
 
         **FAQ Chatbot** & **About**
-        Get quick answers to common questions, and read about the
-        dataset, methodology, and known limitations of this project.
+        Get quick answers to common questions, and read about the dataset, methodology, and known limitations of this project.
         """
     )
 
 st.divider()
-st.caption("Use the sidebar to navigate between pages.")

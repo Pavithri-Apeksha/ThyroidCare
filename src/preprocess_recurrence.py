@@ -1,10 +1,7 @@
 """
-Step 3b: Preprocessing - Recurrence Module (recurrence_dataset.csv)
-Purpose: Clean duplicates, encode categoricals, scale continuous features,
-split data, apply SMOTE (small dataset -> oversampling helps here),
-save encoders/scalers for backend use.
+Preprocessing - Recurrence Module (recurrence_dataset.csv)
+Purpose: Clean duplicates, encode categoricals, scale continuous features, split data, apply SMOTE (small dataset -> oversampling helps here), save encoders/scalers for backend use.
 
-Target: Recurred (binary: No/Yes)
 """
 import pandas as pd
 import numpy as np
@@ -46,7 +43,7 @@ feature_cols = ['Gender', 'Smoking', 'Hx Smoking', 'Hx Radiothreapy'] + continuo
 X = df_encoded[feature_cols].astype(float)
 y = df_encoded['Recurred_enc'].values
 
-# ---- Stratified split (70/15/15 - small dataset needs bigger val/test proportion) ----
+# Stratified split (70/15/15 - small dataset needs bigger val/test proportion) 
 X_train, X_temp, y_train, y_temp = train_test_split(
     X, y, test_size=0.3, stratify=y, random_state=42
 )
@@ -54,7 +51,7 @@ X_val, X_test, y_val, y_test = train_test_split(
     X_temp, y_temp, test_size=0.5, stratify=y_temp, random_state=42
 )
 
-# ---- Scale continuous ----
+# Scale continuous
 scaler = StandardScaler()
 X_train[continuous_cols] = scaler.fit_transform(X_train[continuous_cols])
 X_val[continuous_cols] = scaler.transform(X_val[continuous_cols])
@@ -62,7 +59,7 @@ X_test[continuous_cols] = scaler.transform(X_test[continuous_cols])
 
 print(f"\nBefore SMOTE - Train balance: {np.bincount(y_train)} (0=No, 1=Yes)")
 
-# ---- SMOTE on training data only (small dataset -> oversampling minority helps deep model learn) ----
+# SMOTE on training data only (small dataset -> oversampling minority helps deep model learn)
 smote = SMOTE(random_state=42, k_neighbors=5)
 X_train_sm, y_train_sm = smote.fit_resample(X_train, y_train)
 print(f"After SMOTE  - Train balance: {np.bincount(y_train_sm)} (0=No, 1=Yes)")

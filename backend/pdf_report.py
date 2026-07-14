@@ -1,9 +1,6 @@
 """
 backend/pdf_report.py
 Purpose: Generate a downloadable PDF report for a single patient prediction
-(risk or recurrence), including the prediction, probability, key input
-values, and the top SHAP feature contributions. Satisfies the proposal's
-"Exportable model cards and risk reports (PDF)" requirement.
 """
 from fpdf import FPDF
 from datetime import datetime
@@ -39,7 +36,7 @@ def generate_prediction_pdf(module: str, patient: dict, result: dict, output_pat
     pdf = ReportPDF()
     pdf.add_page()
 
-    # ---- Section: Prediction Summary ----
+    # Section: Prediction Summary 
     pdf.set_font('Helvetica', 'B', 13)
     pdf.set_text_color(0, 0, 0)
     pdf.cell(0, 10, f'Module: {"Risk Prediction" if module == "risk" else "Recurrence Prediction"}', ln=True)
@@ -55,7 +52,7 @@ def generate_prediction_pdf(module: str, patient: dict, result: dict, output_pat
 
     pdf.ln(4)
 
-    # ---- Section: Patient Input Summary ----
+    # Patient Input Summary 
     pdf.set_font('Helvetica', 'B', 12)
     pdf.cell(0, 8, 'Input Summary', ln=True)
     pdf.set_font('Helvetica', '', 10)
@@ -64,7 +61,7 @@ def generate_prediction_pdf(module: str, patient: dict, result: dict, output_pat
 
     pdf.ln(4)
 
-    # ---- Section: Top Contributing Factors (SHAP) ----
+    # Top Contributing Factors (SHAP) 
     if 'shap_explanation' in result:
         pdf.set_font('Helvetica', 'B', 12)
         pdf.cell(0, 8, 'Top Contributing Factors (SHAP)', ln=True)

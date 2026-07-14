@@ -1,10 +1,6 @@
 """
 train_dl_risk.py
-Purpose: Train a Deep Learning model (Multi-Task Neural Network) on the
-Risk dataset. ONE model predicts BOTH targets at once:
-  - Diagnosis (Benign/Malignant)
-  - Thyroid_Cancer_Risk (Low/Medium/High)
-This is the CORE deep learning component of the research.
+Purpose: Train a Deep Learning model (Multi-Task Neural Network) on the Risk dataset.
 """
 import numpy as np
 import torch
@@ -15,7 +11,7 @@ import os
 torch.manual_seed(42)
 os.makedirs('models/risk', exist_ok=True)
 
-# ---- Step 1: Load preprocessed data ----
+# Load preprocessed data 
 data = np.load('data/processed/risk_module_data.npz')
 X_train, X_val, X_test = data['X_train'], data['X_val'], data['X_test']
 ydiag_train, ydiag_val, ydiag_test = data['ydiag_train'], data['ydiag_val'], data['ydiag_test']
@@ -27,9 +23,7 @@ yrisk_tr = torch.tensor(yrisk_train, dtype=torch.long)
 Xval = torch.tensor(X_val, dtype=torch.float32)
 Xtest = torch.tensor(X_test, dtype=torch.float32)
 
-# ---- Step 2: Define the Multi-Task Neural Network ----
-# "Shared" layers learn general patterns from the data.
-# Then it SPLITS into two "heads" - one for each prediction task.
+# Define the Multi-Task Neural Network
 class MultiTaskMLP(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
@@ -48,12 +42,12 @@ class MultiTaskMLP(nn.Module):
 model = MultiTaskMLP(X_train.shape[1])
 opt = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
-# ---- Step 3: Loss functions (handle class imbalance) ----
+# Loss functions (handle class imbalance) 
 diag_pos_weight = torch.tensor((ydiag_train == 0).sum() / (ydiag_train == 1).sum())
 diag_loss_fn = nn.BCEWithLogitsLoss(pos_weight=diag_pos_weight)
 risk_loss_fn = nn.CrossEntropyLoss()
 
-# ---- Step 4: Training loop with validation-based best model tracking ----
+# Training loop with validation-based best model tracking 
 batch_size = 1024
 n = Xtr.shape[0]
 epochs = 30
@@ -90,7 +84,7 @@ for epoch in range(epochs):
 
 print(f"\nBest validation AUROC during training: {best_auroc:.4f}")
 
-# ---- Step 5: Load best model and evaluate on TEST set (final, unbiased score) ----
+# Load best model and evaluate on TEST set (final, unbiased score)
 model.load_state_dict(best_state)
 model.eval()
 with torch.no_grad():
@@ -102,7 +96,7 @@ with torch.no_grad():
 test_auroc = roc_auc_score(ydiag_test, diag_probs)
 test_f1 = f1_score(ydiag_test, diag_preds)
 
-print("\n===== DEEP LEARNING MODEL (Multi-Task MLP) - Risk Module =====")
+print("\n DEEP LEARNING MODEL (Multi-Task MLP) - Risk Module ")
 print(f"Diagnosis - Test AUROC: {test_auroc:.4f}")
 print(f"Diagnosis - Test F1: {test_f1:.4f}")
 print("\nDiagnosis Detailed Report:")
@@ -110,6 +104,6 @@ print(classification_report(ydiag_test, diag_preds, target_names=['Benign', 'Mal
 print("\nRisk Level Detailed Report:")
 print(classification_report(yrisk_test, risk_preds, target_names=['Low', 'Medium', 'High']))
 
-# ---- Step 6: Save the trained model ----
+# Save the trained model
 torch.save(model.state_dict(), 'models/risk/dl_model_v1.pt')
 print("\nModel saved to models/risk/dl_model_v1.pt")

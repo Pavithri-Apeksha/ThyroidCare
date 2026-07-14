@@ -1,0 +1,6 @@
+Ethnicity,N,AUROC,CI_Lower,CI_Upper
+African,4281,0.729,0.71,0.749
+Asian,5251,0.791,0.777,0.805
+Caucasian,6362,0.579,0.56,0.598
+Hispanic,3289,0.586,0.558,0.616
+Middle Eastern,2087,0.614,0.581,0.65

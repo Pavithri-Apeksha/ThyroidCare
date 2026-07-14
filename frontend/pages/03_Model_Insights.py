@@ -1,9 +1,6 @@
 """
 frontend/pages/Model_Insights.py
-Purpose: Aggregate-level model performance dashboard - fairness breakdown,
-calibration, global SHAP feature importance, and prediction history.
-No individual patient records from the training data are shown here -
-only aggregate statistics and this app's own audit log.
+Purpose: Aggregate-level model performance dashboard - fairness breakdown, calibration, global SHAP feature importance, and prediction history. No individual patient records from the training data are shown here - only aggregate statistics and this app's own audit log.
 """
 import streamlit as st
 import sys
@@ -24,9 +21,7 @@ tab1, tab2, tab3 = st.tabs(["Performance & Calibration", "⚖️ Fairness", "�
 
 charts = get_chart_paths()
 
-# ============================================================
-# TAB 1: Performance & Calibration
-# ============================================================
+# Performance & Calibration
 with tab1:
     st.subheader("Model Comparison")
     comparison = get_model_comparison()
@@ -84,9 +79,7 @@ with tab1:
         if 'SHAP Summary (Recurrence)' in charts:
             st.image(charts['SHAP Summary (Recurrence)'], caption="Recurrence Module - Global SHAP Summary")
 
-# ============================================================
-# TAB 2: Fairness
-# ============================================================
+# Fairness
 with tab2:
     st.subheader("Fairness Across Demographic Groups")
     st.caption("Aggregate group-level statistics only - no individual patient rows are shown.")
@@ -125,9 +118,7 @@ with tab2:
     if fairness['recurrence_gender'] is not None:
         st.dataframe(fairness['recurrence_gender'], use_container_width=True, hide_index=True)
 
-# ============================================================
-# TAB 3: Prediction History (this app's own audit log)
-# ============================================================
+# Prediction History (this app's own audit log)
 with tab3:
     st.subheader("Prediction History (Audit Log)")
     st.caption("Every prediction made through this app is logged here for transparency.")

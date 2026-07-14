@@ -1,8 +1,6 @@
 """
 frontend/pages/Recurrence_Prediction.py
-Purpose: Clinical input form for the Recurrence module (post-treatment
-patients). Calls backend.predictor to get a recurrence prediction with
-SHAP explanation, logs it, and offers a downloadable PDF report.
+Purpose: Clinical input form for the Recurrence module (post-treatment patients). Calls backend.predictor to get a recurrence prediction with SHAP explanation, logs it, and offers a downloadable PDF report.
 """
 import streamlit as st
 import sys
@@ -80,7 +78,7 @@ if submitted:
         direction = "increases risk" if item["impact"] > 0 else "decreases risk"
         st.write(f"**{item['feature']}** — {direction} (impact: {item['impact']:+.3f})")
 
-    # ---- PDF export ----
+    # PDF export
     os.makedirs("reports/generated", exist_ok=True)
     pdf_path = f"reports/generated/recurrence_report_{age}_{gender}.pdf"
     generate_prediction_pdf("recurrence", patient, result, pdf_path)

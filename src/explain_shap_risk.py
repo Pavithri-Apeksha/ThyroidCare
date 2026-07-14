@@ -1,8 +1,6 @@
 """
 explain_shap_risk.py
-Purpose: Generate SHAP explainability plots for the Risk (Diagnosis) model.
-Shows WHICH features drive predictions - required by the proposal for
-transparent, trustworthy clinical decision support.
+Purpose: Generate SHAP explainability plots for the Risk (Diagnosis) model. Shows WHICH features drive predictions - required by the proposal fortransparent, trustworthy clinical decision support.
 """
 import numpy as np
 import torch
@@ -16,14 +14,14 @@ torch.manual_seed(42)
 np.random.seed(42)
 os.makedirs('reports', exist_ok=True)
 
-# ---- Step 1: Load data + feature names ----
+# Load data + feature names
 data = np.load('data/processed/risk_module_data.npz')
 X_train, X_test = data['X_train'], data['X_test']
 with open('models/risk/feature_columns.json') as f:
     meta = json.load(f)
 feature_names = meta['feature_cols']
 
-# ---- Step 2: Rebuild model architecture and load trained weights ----
+# Rebuild model architecture and load trained weights
 class MultiTaskMLP(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
@@ -50,7 +48,7 @@ def predict_diag(x_numpy):
         probs = torch.sigmoid(diag_logits).numpy()
     return probs
 
-# ---- Step 3: Set up SHAP explainer ----
+# Set up SHAP explainer 
 # background = a small representative sample used as the "reference point"
 background = X_train[np.random.choice(len(X_train), 50, replace=False)]
 explainer = shap.KernelExplainer(predict_diag, background)
@@ -62,7 +60,7 @@ sample = X_test[sample_idx]
 print("Computing SHAP values... this takes a few minutes.")
 shap_values = explainer.shap_values(sample, nsamples=100)
 
-# ---- Step 4: Global feature importance (summary plot) ----
+# Global feature importance (summary plot)
 plt.figure()
 shap.summary_plot(shap_values, sample, feature_names=feature_names, show=False)
 plt.tight_layout()
@@ -70,7 +68,7 @@ plt.savefig('reports/shap_summary_risk.png', dpi=150)
 plt.close()
 print("Saved: reports/shap_summary_risk.png")
 
-# ---- Step 5: Individual patient explanation (first patient in sample) ----
+# Individual patient explanation (first patient in sample) 
 plt.figure()
 shap.waterfall_plot(
     shap.Explanation(values=shap_values[0], base_values=explainer.expected_value,
@@ -82,7 +80,7 @@ plt.savefig('reports/shap_patient_example_risk.png', dpi=150)
 plt.close()
 print("Saved: reports/shap_patient_example_risk.png")
 
-# ---- Step 6: Print ranked feature importance (mean absolute SHAP value) ----
+# Print ranked feature importance (mean absolute SHAP value)
 mean_abs_shap = np.abs(shap_values).mean(axis=0)
 ranking = sorted(zip(feature_names, mean_abs_shap), key=lambda x: -x[1])
 print("\nTop 10 most important features for Diagnosis prediction:")

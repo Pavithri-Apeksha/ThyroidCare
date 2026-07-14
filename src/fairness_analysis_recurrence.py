@@ -1,30 +1,6 @@
 """
 fairness_analysis_recurrence.py
-Purpose: Fairness audit + calibration + additional evaluation metrics for
-the Recurrence module.
-
-  1) Fairness analysis by Gender (the only demographic attribute available
-     in this dataset - no Ethnicity/Country columns exist here).
-  2) Additional evaluation metrics: AUPRC, Brier score,
-     sensitivity @ 90% specificity.
-  3) Calibration (Isotonic Regression) + reliability diagram.
-
-Uses the trained XGBoost model (models/recurrence/xgboost_model.pkl).
-
-IMPORTANT CAVEAT: The recurrence test set has only 55 patients (this is a
-small clinical dataset, 364 rows total after de-duplication). Splitting by
-Gender leaves ~25-30 patients per group, which is too small for a
-statistically confident fairness conclusion. This script still reports the
-breakdown for completeness/transparency, but the sample-size limitation
-should be explicitly acknowledged in the report rather than treated as a
-strong finding either way.
-
-This script re-runs the exact same preprocessing + split logic as
-preprocess_recurrence.py (same random_state=42), keeping the raw Gender
-label alongside the split. X_val/X_test are NOT touched by SMOTE (SMOTE is
-only applied to the training set in the original pipeline), so they can be
-directly traced back to the raw data with no synthetic-row issues.
-No models are retrained.
+Purpose: Fairness audit + calibration + additional evaluation metrics for the Recurrence module.
 """
 import pandas as pd
 import numpy as np
@@ -43,17 +19,14 @@ from sklearn.metrics import (
 RAW_PATH = 'data/raw/recurrence_dataset.csv'
 os.makedirs('reports', exist_ok=True)
 
-# ============================================================
-# STEP 1: Rebuild the exact same preprocessing as preprocess_recurrence.py,
-#         keeping the raw Gender label alongside X
-# ============================================================
+# Rebuild the exact same preprocessing as preprocess_recurrence.py,
 df = pd.read_csv(RAW_PATH)
 before = len(df)
 df = df.drop_duplicates().reset_index(drop=True)
 print(f"Dropped {before - len(df)} duplicate rows -> {len(df)} rows remain")
 
 # Keep raw Gender BEFORE encoding, for fairness grouping later
-raw_gender = df['Gender'].copy()  # 'M' / 'F'
+raw_gender = df['Gender'].copy()  
 
 continuous_cols = ['Age']
 df['Gender'] = df['Gender'].map({'M': 1, 'F': 0})
@@ -74,7 +47,7 @@ feature_cols = ['Gender', 'Smoking', 'Hx Smoking', 'Hx Radiothreapy'] + continuo
 X = df_encoded[feature_cols].astype(float)
 y = df_encoded['Recurred_enc'].values
 
-# ---- Same two-stage split, same random_state, but also split the raw Gender label ----
+# Same two-stage split, same random_state, but also split the raw Gender label 
 X_train, X_temp, y_train, y_temp, gender_train, gender_temp = train_test_split(
     X, y, raw_gender, test_size=0.3, stratify=y, random_state=42
 )
@@ -82,8 +55,7 @@ X_val, X_test, y_val, y_test, gender_val, gender_test = train_test_split(
     X_temp, y_temp, gender_temp, test_size=0.5, stratify=y_temp, random_state=42
 )
 
-# ---- Scale continuous (fit on train only, matches original pipeline) ----
-# NOTE: fit on pre-SMOTE X_train, identical to original pipeline order
+# Scale continuous (fit on train only, matches original pipeline)
 scaler = StandardScaler()
 X_train[continuous_cols] = scaler.fit_transform(X_train[continuous_cols])
 X_val[continuous_cols] = scaler.transform(X_val[continuous_cols])
@@ -91,18 +63,16 @@ X_test[continuous_cols] = scaler.transform(X_test[continuous_cols])
 
 print(f"Reconstructed split -> Val: {X_val.shape[0]}, Test: {X_test.shape[0]} (should match original: 55, 55)")
 
-# ============================================================
-# STEP 2: Load trained XGBoost model, get predictions
-# ============================================================
+
+# Load trained XGBoost model, get predictions
+
 model = joblib.load('models/recurrence/xgboost_model.pkl')
 
 val_probs = model.predict_proba(X_val)[:, 1]
 test_probs = model.predict_proba(X_test)[:, 1]
 test_preds = (test_probs > 0.5).astype(int)
 
-# ============================================================
-# STEP 3: FAIRNESS ANALYSIS - Gender only (only demographic column available)
-# ============================================================
+# FAIRNESS ANALYSIS - Gender only (only demographic column available)
 def fairness_table(raw_group_series, y_true, y_prob, y_pred):
     rows = []
     for group in sorted(raw_group_series.unique()):
@@ -126,9 +96,7 @@ print(gender_tbl.to_string(index=False))
 gender_tbl.to_csv('reports/fairness_recurrence_gender.csv', index=False)
 print("Saved: reports/fairness_recurrence_gender.csv")
 
-# ============================================================
-# STEP 4: EXTRA METRICS - AUPRC, Brier score, sensitivity @ 90% specificity
-# ============================================================
+# EXTRA METRICS - AUPRC, Brier score, sensitivity @ 90% specificity
 auprc = average_precision_score(y_test, test_probs)
 brier = brier_score_loss(y_test, test_probs)
 
@@ -151,11 +119,7 @@ with open('reports/extra_metrics_recurrence.json', 'w') as f:
                 'Sensitivity_at_90pct_Specificity': round(best_sens, 4)}, f, indent=2)
 print("Saved: reports/extra_metrics_recurrence.json")
 
-# ============================================================
-# STEP 5: CALIBRATION - Isotonic Regression (fit on val, apply to test)
-# ============================================================
-# CAUTION: val set is only 55 rows, so the isotonic fit itself is fairly
-# noisy here - report this as a limitation, don't overclaim precision.
+# CALIBRATION - Isotonic Regression (fit on val, apply to test)
 iso = IsotonicRegression(out_of_bounds='clip')
 iso.fit(val_probs, y_val)
 test_probs_calibrated = iso.predict(test_probs)
@@ -166,7 +130,7 @@ print(f"\nBrier Score BEFORE calibration: {brier_before:.4f}")
 print(f"Brier Score AFTER calibration:  {brier_after:.4f}")
 print("(Note: calibration fit on only 55 validation samples - treat as exploratory, not definitive.)")
 
-def reliability_curve(y_true, y_prob, n_bins=5):  # fewer bins - small sample
+def reliability_curve(y_true, y_prob, n_bins=5):  
     bins = np.linspace(0, 1, n_bins + 1)
     bin_ids = np.digitize(y_prob, bins) - 1
     bin_ids = np.clip(bin_ids, 0, n_bins - 1)
@@ -196,4 +160,4 @@ print("Saved: reports/calibration_curve_recurrence.png")
 joblib.dump(iso, 'models/recurrence/isotonic_calibrator.pkl')
 print("Saved: models/recurrence/isotonic_calibrator.pkl")
 
-print("\n===== ANALYSIS COMPLETE =====")
+print("\n ANALYSIS COMPLETE")

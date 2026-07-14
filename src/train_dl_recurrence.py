@@ -1,7 +1,6 @@
 """
 train_dl_recurrence.py
-Purpose: Train a Deep Learning model (Neural Network) on the Recurrence
-dataset to predict whether cancer will recur (Yes/No).
+Purpose: Train a Deep Learning model (Neural Network) on the Recurrence dataset to predict whether cancer will recur (Yes/No).
 """
 import numpy as np
 import torch
@@ -12,7 +11,7 @@ import os
 torch.manual_seed(42)
 os.makedirs('models/recurrence', exist_ok=True)
 
-# ---- Step 1: Load preprocessed data (already SMOTE-balanced) ----
+# Load preprocessed data (already SMOTE-balanced)
 data = np.load('data/processed/recurrence_module_data.npz')
 X_train, X_val, X_test = data['X_train'], data['X_val'], data['X_test']
 y_train, y_val, y_test = data['y_train'], data['y_val'], data['y_test']
@@ -22,7 +21,7 @@ ytr = torch.tensor(y_train, dtype=torch.float32)
 Xval = torch.tensor(X_val, dtype=torch.float32)
 Xtest = torch.tensor(X_test, dtype=torch.float32)
 
-# ---- Step 2: Define a smaller Neural Network ----
+#  Define a smaller Neural Network
 # Smaller because the dataset is small (only ~360 training rows) -> a huge
 # network would just memorize the data instead of learning general patterns (overfitting)
 class MLP(nn.Module):
@@ -40,7 +39,7 @@ model = MLP(X_train.shape[1])
 opt = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
 loss_fn = nn.BCEWithLogitsLoss()
 
-# ---- Step 3: Training loop with validation-based best model tracking ----
+# Training loop with validation-based best model tracking 
 epochs = 80
 best_auroc = 0
 best_state = None
@@ -67,7 +66,7 @@ for epoch in range(epochs):
 
 print(f"\nBest validation AUROC during training: {best_auroc:.4f}")
 
-# ---- Step 4: Load best model, evaluate on TEST set ----
+# Load best model, evaluate on TEST set 
 model.load_state_dict(best_state)
 model.eval()
 with torch.no_grad():
@@ -83,6 +82,6 @@ print(f"Test F1: {test_f1:.4f}")
 print("\nDetailed report:")
 print(classification_report(y_test, test_preds, target_names=['No Recurrence', 'Recurred']))
 
-# ---- Step 5: Save the trained model ----
+# Save the trained model
 torch.save(model.state_dict(), 'models/recurrence/dl_model.pt')
 print("\nModel saved to models/recurrence/dl_model.pt")

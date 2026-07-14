@@ -1,9 +1,6 @@
 """
 frontend/pages/4_FAQ_Chatbot.py
-Purpose: Simple rule-based Q&A page. Not an LLM integration (avoids
-cost/complexity/API-key risk) - satisfies the proposal's "chatbot for
-Q&A, guidance, and explanation of predictions" requirement with a
-predefined FAQ lookup plus free-text keyword matching.
+Purpose: Simple rule-based Q&A page. Not an LLM integration 
 """
 import streamlit as st
 import sys
@@ -20,7 +17,7 @@ st.caption("Ask a question below, or click one of the common questions.")
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# ---- Quick-select common questions ----
+# Quick-select common questions=
 st.markdown("##### Common Questions")
 cols = st.columns(2)
 for i, faq in enumerate(FAQS):
@@ -31,14 +28,14 @@ for i, faq in enumerate(FAQS):
 
 st.divider()
 
-# ---- Free-text input ----
+#Free-text input=
 user_q = st.chat_input("Type your own question here...")
 if user_q:
     answer = get_answer(user_q)
     st.session_state.chat_history.append(("user", user_q))
     st.session_state.chat_history.append(("bot", answer))
 
-# ---- Display chat history ----
+#Display chat history 
 for role, text in st.session_state.chat_history:
     with st.chat_message("user" if role == "user" else "assistant"):
         st.write(text)

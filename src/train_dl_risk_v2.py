@@ -1,13 +1,10 @@
 """
 train_dl_risk.py
-Purpose: Train a Deep Learning model (Multi-Task Neural Network) on the
-Risk dataset. ONE model predicts BOTH targets at once:
+Purpose: Train a Deep Learning model (Multi-Task Neural Network) on the Risk dataset. ONE model predicts BOTH targets at once:
   - Diagnosis (Benign/Malignant)  -> primary, strong task
   - Thyroid_Cancer_Risk (Low/Medium/High) -> secondary task
 
-NOTE: The 'Medium' risk class is very hard to separate from 'Low' using
-the available features (confirmed true for XGBoost too, not a bug) -
-this is a documented dataset limitation, discussed in the report.
+NOTE: The 'Medium' risk class is very hard to separate from 'Low' using the available features (confirmed true for XGBoost too, not a bug) - this is a documented dataset limitation, discussed in the report.
 """
 import numpy as np
 import torch
@@ -18,7 +15,7 @@ import os
 torch.manual_seed(42)
 os.makedirs('models/risk', exist_ok=True)
 
-# ---- Step 1: Load preprocessed data ----
+# Load preprocessed data
 data = np.load('data/processed/risk_module_data.npz')
 X_train, X_val, X_test = data['X_train'], data['X_val'], data['X_test']
 ydiag_train, ydiag_val, ydiag_test = data['ydiag_train'], data['ydiag_val'], data['ydiag_test']
@@ -30,7 +27,7 @@ yrisk_tr = torch.tensor(yrisk_train, dtype=torch.long)
 Xval = torch.tensor(X_val, dtype=torch.float32)
 Xtest = torch.tensor(X_test, dtype=torch.float32)
 
-# ---- Step 2: Define the Multi-Task Neural Network ----
+# Define the Multi-Task Neural Network
 class MultiTaskMLP(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
@@ -49,7 +46,7 @@ class MultiTaskMLP(nn.Module):
 model = MultiTaskMLP(X_train.shape[1])
 opt = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 
-# ---- Step 3: Loss functions ----
+# Loss functions
 diag_pos_weight = torch.tensor((ydiag_train == 0).sum() / (ydiag_train == 1).sum())
 diag_loss_fn = nn.BCEWithLogitsLoss(pos_weight=diag_pos_weight)
 
@@ -59,7 +56,7 @@ counts = np.bincount(yrisk_train)
 risk_class_weights = np.sqrt(counts.sum() / (3 * counts))
 risk_loss_fn = nn.CrossEntropyLoss(weight=torch.tensor(risk_class_weights, dtype=torch.float32))
 
-# ---- Step 4: Training loop with validation-based best model tracking ----
+# Training loop with validation-based best model tracking 
 batch_size = 1024
 n = Xtr.shape[0]
 epochs = 30
@@ -98,7 +95,7 @@ for epoch in range(epochs):
 
 print(f"\nBest combined validation score: {best_score:.4f}")
 
-# ---- Step 5: Load best model, evaluate on TEST set ----
+# Load best model, evaluate on TEST set
 model.load_state_dict(best_state)
 model.eval()
 with torch.no_grad():
@@ -110,7 +107,7 @@ with torch.no_grad():
 test_auroc = roc_auc_score(ydiag_test, diag_probs)
 test_f1 = f1_score(ydiag_test, diag_preds)
 
-print("\n===== DEEP LEARNING MODEL (Multi-Task MLP) - Risk Module =====")
+print("\n DEEP LEARNING MODEL (Multi-Task MLP) - Risk Module ")
 print(f"Diagnosis - Test AUROC: {test_auroc:.4f}")
 print(f"Diagnosis - Test F1: {test_f1:.4f}")
 print("\nDiagnosis Detailed Report:")
@@ -121,6 +118,6 @@ print("\nNOTE: 'Medium' class recall is expected to be low - both XGBoost and")
 print("this DL model struggle to separate it from 'Low' using available features.")
 print("This is a documented dataset limitation (see research report discussion).")
 
-# ---- Step 6: Save the trained model ----
+# Save the trained model 
 torch.save(model.state_dict(), 'models/risk/dl_model_v2.pt')
 print("\nModel saved to models/risk/dl_model_v2.pt")

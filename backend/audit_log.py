@@ -1,9 +1,6 @@
 """
 backend/audit_log.py
 Purpose: Every time a prediction is made, log it to a CSV file
-(timestamp, module, prediction, probability, input summary).
-This satisfies the proposal's "audit logs" requirement for transparency
-in a clinical decision support tool.
 """
 import csv
 import os

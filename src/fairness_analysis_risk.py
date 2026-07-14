@@ -1,25 +1,6 @@
 """
 fairness_analysis_risk.py
-Purpose: Fairness audit + calibration + additional evaluation metrics for
-the Risk (Diagnosis) module.
-
-  1) Fairness analysis across Gender / Ethnicity / Country - checks whether
-     the model's performance is evenly distributed across demographic
-     groups, or whether specific groups are systematically underserved.
-  2) Additional evaluation metrics: AUPRC, Brier score,
-     sensitivity @ 90% specificity.
-  3) Calibration (Isotonic Regression) + reliability diagram - checks
-     whether predicted probabilities match real-world observed frequencies.
-
-Uses the trained XGBoost model (models/risk/xgboost_model.pkl) since it is
-the strongest model on this dataset (AUROC ~0.70, on par with the DL model)
-and loads without any architecture-matching risk.
-
-This script re-runs the exact same preprocessing + train/val/test split
-logic as preprocess_risk.py (same random_state=42), but additionally keeps
-the raw (pre-encoding) Gender/Ethnicity/Country labels alongside the split,
-so each row in X_test can be traced back to its demographic group. No
-models are retrained.
+Purpose: Fairness audit + calibration + additional evaluation metrics for the Risk (Diagnosis) module.
 """
 import pandas as pd
 import numpy as np
@@ -38,10 +19,8 @@ from sklearn.metrics import (
 RAW_PATH = 'data/raw/thyroid_cancer_risk_data.csv'
 os.makedirs('reports', exist_ok=True)
 
-# ============================================================
-# STEP 1: Rebuild the exact same preprocessing as preprocess_risk.py,
-#         but keep raw Gender/Ethnicity/Country alongside X
-# ============================================================
+# Rebuild the exact same preprocessing as preprocess_risk.py, but keep raw Gender/Ethnicity/Country alongside X
+
 df = pd.read_csv(RAW_PATH)
 df = df.drop(columns=['Patient_ID'])
 
@@ -71,7 +50,7 @@ X = df[feature_cols].astype(float)
 y_diag = df['Diagnosis_enc'].values
 y_risk = df['Risk_enc'].values
 
-# ---- Same two-stage split, same random_state, but also split the raw labels ----
+# Same two-stage split, same random_state, but also split the raw labels
 (X_train, X_temp, ydiag_train, ydiag_temp, yrisk_train, yrisk_temp,
  gender_train, gender_temp, country_train, country_temp,
  eth_train, eth_temp) = train_test_split(
@@ -85,7 +64,7 @@ y_risk = df['Risk_enc'].values
     test_size=0.5, stratify=ydiag_temp, random_state=42
 )
 
-# ---- Scale continuous features (fit on train only, matches original pipeline) ----
+# Scale continuous features (fit on train only, matches original pipeline)
 scaler = StandardScaler()
 X_train[continuous_cols] = scaler.fit_transform(X_train[continuous_cols])
 X_val[continuous_cols] = scaler.transform(X_val[continuous_cols])
@@ -93,18 +72,14 @@ X_test[continuous_cols] = scaler.transform(X_test[continuous_cols])
 
 print(f"Reconstructed split -> Test set size: {X_test.shape[0]} (should match original: 21270)")
 
-# ============================================================
-# STEP 2: Load trained XGBoost model, get predictions
-# ============================================================
+# Load trained XGBoost model, get predictions
 model = joblib.load('models/risk/xgboost_model.pkl')
 
 val_probs = model.predict_proba(X_val)[:, 1]
 test_probs = model.predict_proba(X_test)[:, 1]
 test_preds = (test_probs > 0.5).astype(int)
 
-# ============================================================
-# STEP 3: FAIRNESS ANALYSIS - Gender / Ethnicity / Country
-# ============================================================
+# FAIRNESS ANALYSIS - Gender / Ethnicity / Country
 def fairness_table(raw_group_series, y_true, y_prob, y_pred, min_group_size=30):
     rows = []
     for group in sorted(raw_group_series.unique()):
@@ -143,7 +118,7 @@ eth_tbl.to_csv('reports/fairness_ethnicity.csv', index=False)
 country_tbl.to_csv('reports/fairness_country.csv', index=False)
 print("\nSaved: reports/fairness_gender.csv, fairness_ethnicity.csv, fairness_country.csv")
 
-# ---- Fairness bar chart (Malignant Recall by Ethnicity) ----
+# Fairness bar chart (Malignant Recall by Ethnicity)
 plt.figure(figsize=(8, 5))
 plt.bar(eth_tbl['Group'], eth_tbl['Malignant_Recall'], color='steelblue')
 overall_recall = recall_score(ydiag_test, test_preds)
@@ -158,14 +133,11 @@ plt.savefig('reports/fairness_ethnicity_chart.png', dpi=150)
 plt.close()
 print("Saved: reports/fairness_ethnicity_chart.png")
 
-# ============================================================
-# STEP 4: EXTRA METRICS - AUPRC, Brier score, sensitivity @ 90% specificity
-# ============================================================
+# EXTRA METRICS - AUPRC, Brier score, sensitivity @ 90% specificity
 auprc = average_precision_score(ydiag_test, test_probs)
 brier = brier_score_loss(ydiag_test, test_probs)
 
-# Sensitivity at 90% specificity: scan thresholds, find best sensitivity
-# among thresholds where specificity >= 0.90
+# Sensitivity at 90% specificity: scan thresholds, find best sensitivity among thresholds where specificity >= 0.90
 best_sens = 0
 for t in np.linspace(0.01, 0.99, 99):
     preds_t = (test_probs > t).astype(int)
@@ -185,9 +157,7 @@ with open('reports/extra_metrics.json', 'w') as f:
                 'Sensitivity_at_90pct_Specificity': round(best_sens, 4)}, f, indent=2)
 print("Saved: reports/extra_metrics.json")
 
-# ============================================================
-# STEP 5: CALIBRATION - Isotonic Regression (fit on val, apply to test)
-# ============================================================
+# CALIBRATION - Isotonic Regression (fit on val, apply to test)
 iso = IsotonicRegression(out_of_bounds='clip')
 iso.fit(val_probs, ydiag_val)
 test_probs_calibrated = iso.predict(test_probs)
@@ -197,7 +167,7 @@ brier_after = brier_score_loss(ydiag_test, test_probs_calibrated)
 print(f"\nBrier Score BEFORE calibration: {brier_before:.4f}")
 print(f"Brier Score AFTER calibration:  {brier_after:.4f}")
 
-# ---- Reliability diagram (before vs after) ----
+# Reliability diagram (before vs after)
 def reliability_curve(y_true, y_prob, n_bins=10):
     bins = np.linspace(0, 1, n_bins + 1)
     bin_ids = np.digitize(y_prob, bins) - 1
@@ -229,4 +199,4 @@ print("Saved: reports/calibration_curve.png")
 joblib.dump(iso, 'models/risk/isotonic_calibrator.pkl')
 print("Saved: models/risk/isotonic_calibrator.pkl")
 
-print("\n===== ANALYSIS COMPLETE =====")
+print("\n ANALYSIS COMPLETE")

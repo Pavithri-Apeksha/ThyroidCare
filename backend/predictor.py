@@ -1,11 +1,6 @@
 """
 backend/predictor.py
-Purpose: The CORE engine for the web app. Takes raw patient input (from a
-web form, as a plain dictionary), converts it into the exact format the
-trained models expect, runs the prediction, applies probability calibration,
-and generates a SHAP explanation for that specific patient.
 
-This file has NO web/UI code - it's pure logic, reused by every page.
 """
 import numpy as np
 import torch
@@ -18,9 +13,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
 
 
-# =========================================================
 # Model architecture definitions (must match training scripts exactly)
-# =========================================================
 class RiskMultiTaskMLP(nn.Module):
     def __init__(self, input_dim):
         super().__init__()
@@ -50,9 +43,7 @@ class RecurrenceMLP(nn.Module):
         return self.net(x).squeeze(-1)
 
 
-# =========================================================
 # Load everything ONCE at import time (fast repeated predictions)
-# =========================================================
 def _load_json(path):
     with open(path) as f:
         return json.load(f)
@@ -79,9 +70,7 @@ except FileNotFoundError:
     REC_CALIBRATOR = None
 
 
-# =========================================================
 # RISK MODULE
-# =========================================================
 def build_risk_vector(patient: dict) -> np.ndarray:
     """
     patient dict expected keys (raw, human-readable values):
@@ -160,9 +149,7 @@ def _explain_risk(x_vec: np.ndarray, nsamples: int = 100):
     return [{'feature': f, 'impact': float(v)} for f, v in contributions[:8]]
 
 
-# =========================================================
 # RECURRENCE MODULE
-# =========================================================
 def build_recurrence_vector(patient: dict) -> np.ndarray:
     """
     patient dict expected keys:

@@ -1,8 +1,6 @@
 """
 frontend/pages/Risk_Prediction.py
-Purpose: Patient input form for the Risk module. Calls backend.predictor
-to get Diagnosis + Risk Level predictions with a SHAP explanation, logs
-the prediction, and offers a downloadable PDF report.
+Purpose: Patient input form for the Risk module. Calls backend.predictor to get Diagnosis + Risk Level predictions with a SHAP explanation, logs the prediction, and offers a downloadable PDF report.
 """
 import streamlit as st
 import sys
@@ -83,7 +81,7 @@ if submitted:
         direction = "increases risk" if item["impact"] > 0 else "decreases risk"
         st.write(f"**{item['feature']}** — {direction} (impact: {item['impact']:+.3f})")
 
-    # ---- PDF export ----
+    #  PDF export
     os.makedirs("reports/generated", exist_ok=True)
     pdf_path = f"reports/generated/risk_report_{age}_{gender}.pdf"
     generate_prediction_pdf("risk", patient, result, pdf_path)

@@ -1,9 +1,6 @@
 """
 backend/dashboard_data.py
 Purpose: Data-loading logic for the Model Insights dashboard page.
-Reads the already-generated fairness/calibration/SHAP artifacts from
-reports/ and returns clean data structures. No Streamlit/UI code here -
-keeps the dashboard page thin (separation of concerns).
 """
 import pandas as pd
 import json
@@ -11,10 +8,6 @@ import os
 
 REPORTS_DIR = 'reports'
 
-# ---- Known evaluation metrics from training logs (static summary table) ----
-# These come directly from the console output when each model was trained/
-# evaluated (train_xgboost_risk.py, train_dl_risk_v2.py, etc.) - not
-# re-computed here, just organized for display.
 MODEL_COMPARISON = {
     "Risk / Diagnosis": [
         {"Model": "Logistic Regression", "AUROC": 0.665, "F1": 0.444},
